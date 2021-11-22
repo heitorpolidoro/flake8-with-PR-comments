@@ -9,4 +9,4 @@ COPY entrypoint.py /entrypoint.sh
 
 RUN chmod +x /entrypoint.py
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.py"]
