@@ -5,7 +5,7 @@ RUN apk add --no-cache \
     git \
     github-cli
 
-COPY entrypoint.py /entrypoint.sh
+COPY entrypoint.py /entrypoint.py
 
 RUN chmod +x /entrypoint.py
 
