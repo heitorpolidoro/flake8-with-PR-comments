@@ -1,12 +1,16 @@
 FROM alpine
 
-RUN apk add --no-cache \
+ENV PYTHONUNBUFFERED=1
+
+RUN apk add --update --no-cache \
     bash \
-    git \
-    github-cli
+#    git \
+#    github-cli \
+    python3
 
 COPY entrypoint.py /entrypoint.py
 
 RUN chmod +x /entrypoint.py
 
-ENTRYPOINT ["/entrypoint.py"]
+CMD ["/entrypoint.py"]
+ENTRYPOINT ["python3"]
