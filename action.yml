@@ -6,23 +6,9 @@ branding:
   icon: tag
 
 inputs:
-  personal_access_token:
-    description: "Github Personal access token"
+  github_token:
+    description: "Github default access token"
     required: true
-
-  allowed_users:
-    description: "Allowed users to generate auto release"
-    required: false
-
-  version_file:
-    description: "File were the version is"
-    required: false
-    default: "VERSION"
-
-  update_released_versions:
-    description: "Update vX and vX.Y versions if a new vX.Y.Z version is released"
-    required: false
-    default: 'false'
 
 runs:
   using: "docker"
