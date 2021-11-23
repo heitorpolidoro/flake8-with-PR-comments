@@ -6,7 +6,10 @@ RUN apk add --update --no-cache \
     bash \
 #    git \
 #    github-cli \
-    python3
+    python3 py3-pip \
+    && pip install \
+    flake8 \
+    PyGithub
 
 COPY entrypoint.py /entrypoint.py
 
@@ -14,3 +17,4 @@ RUN chmod +x /entrypoint.py
 
 CMD ["/entrypoint.py"]
 ENTRYPOINT ["python3"]
+#ENTRYPOINT ["bash"]
