@@ -10,6 +10,11 @@ inputs:
     description: "Github default access token"
     required: true
 
+  flake_parameters:
+    description: "Another flake parameters"
+    default: ""
+    required: false
+
 runs:
   using: "docker"
   image: "Dockerfile"

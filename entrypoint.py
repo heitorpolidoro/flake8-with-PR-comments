@@ -14,7 +14,9 @@ from github import Github
 # """)
 # os.chdir('polidoro-argument')
 print('::group::Flake8')
-proc = Popen('flake8 --show-source', shell=True, text=True, stdout=PIPE, stderr=PIPE)
+flake_cmd = 'flake8 --show-source ' + os.environ['INPUT_FLAKE_PARAMETERS']
+print(flake_cmd)
+proc = Popen(flake_cmd, shell=True, text=True, stdout=PIPE, stderr=PIPE)
 outs, errs = proc.communicate()
 print(outs)
 splitted_outs = outs.split('\n')
@@ -27,15 +29,9 @@ for errors_index in range(0, len(splitted_outs), 3):
         lwe['code'] = splitted_outs[errors_index + 1].strip()
         lines_with_errors[info['line']] = lwe
 
-        print('erro', info['error'])
-        print('line', info['line'])
-        print('file', info['path'])
-        print('code', splitted_outs[errors_index + 1])
-for envk, envv in os.environ.items():
-    print(envk, '=', envv)
-gh = Github(os.environ['GITHUB_TOKEN'])  # TODO ENV
-repo = gh.get_repo('heitorpolidoro/polidoro-argument')  # TODO GITHUB ENV
-pr = repo.get_pulls(head=os.environ['GITHUB_REF'])[0]  # TODO GITHUB ENV
+gh = Github(os.environ['INPUT_GITHUB_TOKEN'])
+repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
+pr = repo.get_pulls(head=os.environ['GITHUB_REF'])[0]
 commit = list(pr.get_commits())[-1]
 comments = pr.get_review_comments()
 for file in pr.get_files():
@@ -46,5 +42,4 @@ for file in pr.get_files():
                     print(diff_index, lwe['errors'])
                     pr.create_review_comment('\n'.join(lwe['errors']), commit, file.filename, diff_index)
     print('::endgroup::')
-    print(errs)
 
