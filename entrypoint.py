@@ -7,9 +7,9 @@ from github import Github
 
 def already_commented(file, diff_index, body, comments):
     for comment in comments:
-        print(file.filename, comment.path, file.filename == comment.path)
-        print(diff_index, comment.position, diff_index == comment.position)
-        print(body, comment.body, body == comment.body)
+        if file.filename == comment.path and diff_index == comment.position and body == comment.body:
+            return True
+    return False
 
 
 def run_flake():
