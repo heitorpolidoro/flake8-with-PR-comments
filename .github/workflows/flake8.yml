@@ -10,4 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Flake 8
-        uses: ./
+        uses: heitorpolidoro/flake8-with-PR-comments@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

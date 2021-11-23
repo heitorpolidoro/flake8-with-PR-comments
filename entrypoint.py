@@ -32,8 +32,7 @@ for errors_index in range(0, len(splitted_outs), 3):
         print('file', info['path'])
         print('code', splitted_outs[errors_index + 1])
 for envk, envv in os.environ.items():
-    if envk.startswith('GITHUB'):
-        print(envk, '=', envv)
+    print(envk, '=', envv)
 gh = Github(os.environ['GITHUB_TOKEN'])  # TODO ENV
 repo = gh.get_repo('heitorpolidoro/polidoro-argument')  # TODO GITHUB ENV
 pr = repo.get_pulls(head=os.environ['GITHUB_REF'])[0]  # TODO GITHUB ENV
