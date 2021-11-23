@@ -4,15 +4,6 @@ import re
 from subprocess import Popen, PIPE
 from github import Github
 
-# os.system("""
-# set -x
-# apk add --update --no-cache git github-cli
-# echo "$PERSONAL_ACCESS_TOKEN" | gh auth login --with-token
-# gh repo clone heitorpolidoro/polidoro-argument
-# cd polidoro-argument
-# git checkout lint
-# """)
-# os.chdir('polidoro-argument')
 print('::group::Flake8')
 flake_cmd = 'flake8 --show-source ' + os.environ['INPUT_FLAKE_PARAMETERS']
 print(flake_cmd)
@@ -42,4 +33,4 @@ for file in pr.get_files():
                     print(diff_index, lwe['errors'])
                     pr.create_review_comment('\n'.join(lwe['errors']), commit, file.filename, diff_index)
     print('::endgroup::')
-
+exit(proc.returncode)
