@@ -24,13 +24,18 @@ gh = Github(os.environ['INPUT_GITHUB_TOKEN'])
 repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
 pr = repo.get_pulls(head=os.environ['GITHUB_REF'])[0]
 commit = list(pr.get_commits())[-1]
-comments = pr.get_review_comments()
+comments = [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
+
 for file in pr.get_files():
     for diff_index, diff_code in enumerate(file.patch.split('\n')):
         if diff_code[0] == '+':
             for lwe in lines_with_errors.values():
                 if lwe['code'] == diff_code[1:].strip():
-                    print(diff_index, lwe['errors'])
-                    pr.create_review_comment('\n'.join(lwe['errors']), commit, file.filename, diff_index)
+                    body = '\n'.join(lwe['errors'])
+                    for comment in comments:
+                        print(file.filename, comment.path, file.filename==comment.path)
+                        print(diff_index, comment.position, diff_index==comment.position)
+                        print(body, comment.body, body==comment.body)
+                    pr.create_review_comment(body, commit, file.filename, diff_index)
     print('::endgroup::')
 exit(proc.returncode)
