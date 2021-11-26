@@ -2,8 +2,8 @@ name: "Runs Flake 8 and comment o PR"
 description: "Runs Flake 8 and comment o PR"
 
 branding:
-  color: blue
-  icon: tag
+  color: yellow
+  icon: check-square
 
 inputs:
   github_token:
