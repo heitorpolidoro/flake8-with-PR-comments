@@ -8,9 +8,7 @@ from github import Github
 
 def already_commented(file, diff_index, body, comments):
     for comment in comments:
-        if file.filename == comment.path and \
-                diff_index == comment.position and \
-                body == comment.body:
+        if file.filename == comment.path and diff_index == comment.position and body == comment.body:
             return True
     return False
 
@@ -46,20 +44,15 @@ def main():
     repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
     pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
     commit = list(pr.get_commits())[-1]
-    comments= [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
-    print('COMMENTS:', comments)
+    comments = [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
 
     for file in pr.get_files():
-        print('FILE:', file.filename)
         for diff_index, diff_code in enumerate(file.patch.split('\n')):
-            print('DIFF:', diff_index, diff_code)
             if diff_code[0] == '+':
                 for lwe in lines_with_errors.values():
-                    print('LWE:', lwe)
                     if lwe['code'] == diff_code[1:].strip():
                         body = '\n'.join(lwe['errors'])
                         if not already_commented(file, diff_index, body, comments):
-                            print('COMMENT:', body)
                             pr.create_review_comment(body, commit, file.filename, diff_index)
     print('::endgroup::')
     exit(returncode)
