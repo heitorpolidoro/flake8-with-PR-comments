@@ -1,7 +1,8 @@
 #!/bin/python
 import os
 import re
-from subprocess import Popen, PIPE
+import subprocess
+
 from github import Github
 
 
@@ -15,10 +16,9 @@ def already_commented(file, diff_index, body, comments):
 def run_flake():
     flake_cmd = 'flake8 --show-source ' + os.environ['INPUT_FLAKE_PARAMETERS']
     print(flake_cmd)
-    proc = Popen(flake_cmd, shell=True, text=True, stdout=PIPE, stderr=PIPE)
-    outs, errs = proc.communicate()
+    returncode, outs = subprocess.getstatusoutput(flake_cmd)
     print(outs)
-    return outs, proc.returncode
+    return outs, returncode
 
 
 def generate_comments(outs):
@@ -40,9 +40,9 @@ def main():
     outs, returncode = run_flake()
     lines_with_errors = generate_comments(outs)
 
-    gh = Github(os.environ['INPUT_GITHUB_TOKEN'])
+    gh = Github()
     repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
-    pr = repo.get_pulls(head=os.environ['GITHUB_REF'])[0]
+    pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
     commit = list(pr.get_commits())[-1]
     comments = [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
 

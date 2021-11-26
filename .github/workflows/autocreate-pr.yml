@@ -1,0 +1,20 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  creating-PR:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Creating Pull Request
+        uses: heitorpolidoro/autocreate-pr@v1
+        env:
+          heitorpolidoro: ${{ secrets.HEITORPOLIDORO_PAT }}
