@@ -12,6 +12,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Flake 8
-        uses: heitorpolidoro/flake8-with-PR-comments@master
+        uses: heitorpolidoro/flake8-with-PR-comments@flake-fix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          flake_parameters: --max-line-length=127

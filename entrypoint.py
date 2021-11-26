@@ -40,7 +40,7 @@ def main():
     outs, returncode = run_flake()
     lines_with_errors = generate_comments(outs)
 
-    gh = Github()
+    gh = Github(os.environ['GITHUB_TOKEN'])
     repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
     pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
     commit = list(pr.get_commits())[-1]
