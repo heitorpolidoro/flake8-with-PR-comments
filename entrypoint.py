@@ -8,7 +8,9 @@ from github import Github
 
 def already_commented(file, diff_index, body, comments):
     for comment in comments:
-        if file.filename == comment.path and diff_index == comment.position and body == comment.body:
+        if file.filename == comment.path and \
+                diff_index == comment.position and \
+                body == comment.body:
             return True
     return False
 
@@ -44,7 +46,7 @@ def main():
     repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
     pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
     commit = list(pr.get_commits())[-1]
-    comments = [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
+    comments= [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
     print('COMMENTS:', comments)
 
     for file in pr.get_files():
