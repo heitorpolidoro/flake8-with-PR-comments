@@ -44,7 +44,7 @@ def main():
     repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
     prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
     if prs:
-        pr = prs[0]
+        pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
         commit = list(pr.get_commits())[-1]
         comments = [comment for comment in pr.get_comments() if comment.user.login == 'github-actions[bot]']
 
