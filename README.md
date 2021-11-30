@@ -11,14 +11,27 @@ Run flake8 on repository and comment in PR
 
 ### Usage
 ```yaml
+name: Lint with comments
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  linter:
+    name: Linter
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Create GitHub Release
-        uses: heitorpolidoro/auto-release@v1
+      - name: Run Flake 8
+        uses: heitorpolidoro/flake8-with-PR-comments@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
 ```
 Must have a file named `VERSION` in root with the project version in `MAJOR.MINOR.BUGFIX` format.
 #### Optional parameters
