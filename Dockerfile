@@ -4,8 +4,6 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apk add --update --no-cache \
     bash \
-#    git \
-#    github-cli \
     python3 py3-pip \
     && pip install \
     flake8 \
@@ -17,4 +15,3 @@ RUN chmod +x /entrypoint.py
 
 CMD ["/entrypoint.py"]
 ENTRYPOINT ["python3"]
-#ENTRYPOINT ["bash"]

@@ -27,11 +27,13 @@ def generate_comments(outs):
     for errors_index in range(0, len(splitted_outs), 3):
         if splitted_outs[errors_index]:
             info = re.search(r'(?P<path>.*?):(?P<line>\d*):\d*: *(?P<error>.*)',
-                             splitted_outs[errors_index]).groupdict()
-            lwe = lines_with_errors.get(info['line'], {})
-            lwe['errors'] = lwe.get('errors', []) + [info['error']]
-            lwe['code'] = splitted_outs[errors_index + 1].strip()
-            lines_with_errors[info['line']] = lwe
+                             splitted_outs[errors_index])
+            if info:
+                info_dict = info.groupdict()
+                lwe = lines_with_errors.get(info_dict['line'], {})
+                lwe['errors'] = lwe.get('errors', []) + [info_dict['error']]
+                lwe['code'] = splitted_outs[errors_index + 1].strip()
+                lines_with_errors[info_dict['line']] = lwe
     return lines_with_errors
 
 
