@@ -51,6 +51,7 @@ def run_flake():
     lint_error = None
     errors = {}
     for line in outs.split('\n'):
+        print(f'DEBUG: {line}')
         if line.startswith('./'):
             if lint_error:
                 errors[lint_error.filename] = errors.get(lint_error.filename, []) + [lint_error]
