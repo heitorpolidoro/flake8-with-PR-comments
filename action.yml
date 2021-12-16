@@ -1,5 +1,5 @@
-name: "Runs Flake 8 and comment o PR"
-description: "Runs Flake 8 and comment o PR"
+name: "Runs Linters and comment on PR"
+description: "Runs Linters and comment on PR"
 
 branding:
   color: yellow

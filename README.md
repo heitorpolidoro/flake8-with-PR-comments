@@ -1,4 +1,4 @@
-# Flake8 with PR comments Action
+# Linter with PR comments Action
 [![Create GitHub Release](https://github.com/heitorpolidoro/flake8-with-PR-comments/actions/workflows/auto-release.yml/badge.svg)](https://github.com/heitorpolidoro/flake8-with-PR-comments/actions/workflows/auto-release.yml)
 ![GitHub last commit](https://img.shields.io/github/last-commit/heitorpolidoro/flake8-with-pr-comments)
 
@@ -11,29 +11,24 @@ Run flake8 on repository and comment in PR
 
 ### Usage
 ```yaml
-name: Lint with comments
-
+name: Linters
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  linter:
-    name: Linter
+  linters:
+    name: Linters
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Run Flake 8
-        uses: heitorpolidoro/flake8-with-PR-comments@v1
+      - name: Run Linters
+        uses: heitorpolidoro/lint-with-PR-comments@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
 ```
-Must have a file named `VERSION` in root with the project version in `MAJOR.MINOR.BUGFIX` format.
 #### Optional parameters
 ```yaml
 flake_parameters: Aditional flake parameters
