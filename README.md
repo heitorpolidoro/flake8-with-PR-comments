@@ -1,17 +1,18 @@
-# Linter with PR comments Action
-[![Create GitHub Release](https://github.com/heitorpolidoro/flake8-with-PR-comments/actions/workflows/auto-release.yml/badge.svg)](https://github.com/heitorpolidoro/flake8-with-PR-comments/actions/workflows/auto-release.yml)
-![GitHub last commit](https://img.shields.io/github/last-commit/heitorpolidoro/flake8-with-pr-comments)
+# Linter with PR comments
+![GitHub last commit](https://img.shields.io/github/last-commit/heitorpolidoro/lint-with-pr-comments)
+[![Create GitHub Release](https://github.com/heitorpolidoro/lint-with-PR-comments/actions/workflows/auto-release.yml/badge.svg)](https://github.com/heitorpolidoro/lint-with-PR-comments/actions/workflows/auto-release.yml)
 
-[![Latest](https://img.shields.io/github/release/heitorpolidoro/flake8-with-pr-comments.svg?label=latest)](https://github.com/heitorpolidoro/flake8-with-pr-comments/releases/latest)
-![GitHub Release Date](https://img.shields.io/github/release-date/heitorpolidoro/flake8-with-pr-comments)
+[![Latest](https://img.shields.io/github/release/heitorpolidoro/lint-with-pr-comments.svg?label=latest)](https://github.com/heitorpolidoro/lint-with-pr-comments/releases/latest)
+![GitHub Release Date](https://img.shields.io/github/release-date/heitorpolidoro/lint-with-pr-comments)
 
-![GitHub](https://img.shields.io/github/license/heitorpolidoro/flake8-with-pr-comments)
+![GitHub](https://img.shields.io/github/license/heitorpolidoro/lint-with-pr-comments)
 
-Run flake8 on repository and comment in PR
+Run linters on repository and comment in PR
 
 ### Usage
 ```yaml
-name: Linters
+name: Lint with comments
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -20,6 +21,7 @@ jobs:
   linters:
     name: Linters
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
