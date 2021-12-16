@@ -6,10 +6,6 @@ branding:
   icon: check-square
 
 inputs:
-  github_token:
-    description: "Github default access token"
-    required: true
-
   flake_parameters:
     description: "Another flake parameters"
     default: ""
