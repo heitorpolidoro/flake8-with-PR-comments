@@ -51,13 +51,12 @@ def run_flake():
     lint_error = None
     errors = {}
     for line in outs.split('\n'):
-        print(f'DEBUG: {line}')
         if line.startswith('./'):
             if lint_error:
                 errors[lint_error.filename] = errors.get(lint_error.filename, []) + [lint_error]
             info = re.search(r'\./(?P<path>.*?):\d*:\d*: *(?P<error>.*)', line).groupdict()
             lint_error = LintError(info['path'], info['error'])
-        else:
+        elif lint_error:
             lint_error.add_comment_line(line)
     if lint_error:
         errors[lint_error.filename] = errors.get(lint_error.filename, []) + [lint_error]
