@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Linters
-        uses: heitorpolidoro/lint-with-PR-comments@master
+        uses: heitorpolidoro/lint-with-PR-comments@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
