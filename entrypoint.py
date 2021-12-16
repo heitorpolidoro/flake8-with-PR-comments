@@ -5,6 +5,7 @@ import subprocess
 
 from github import Github
 
+
 class LintError:
     def __init__(self, filename, error):
         self.filename = filename
@@ -33,6 +34,7 @@ class LintError:
 
     def add_comment_line(self, line):
         self._comment.append(line)
+
 
 def already_commented(file, diff_index, body, comments):
     for comment in comments:
