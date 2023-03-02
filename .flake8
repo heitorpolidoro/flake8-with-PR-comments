@@ -1,4 +1,4 @@
 [flake8]
-max-line-length = 12
+max-line-length = 120
 max-complexity = 10
 exclude =  venv

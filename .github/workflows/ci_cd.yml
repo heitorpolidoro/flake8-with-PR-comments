@@ -1,0 +1,52 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  linter:
+    name: Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Linter
+        uses: luizm/action-sh-checker@v0.7.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # If true, run checkbashisms tool against scripts. Default is false
+          sh_checker_checkbashisms_enable: true
+          # If true, it will show the errors as commentaries in the pull requests. Default is false
+          sh_checker_comment: true
+
+  set-auto-merge:
+    name: Set Pull Request do Automerge
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action != 'synchronize'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setting to Automerge
+        uses: heitorpolidoro/automerge-pr@v2
+        env:
+          heitorpolidoro: ${{ secrets.HEITORPOLIDORO_PAT }}

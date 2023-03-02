@@ -6,6 +6,10 @@ branding:
   icon: check-square
 
 inputs:
+  linters:
+    description: "List of linters to use"
+    default: ""
+    required: true
   flake_parameters:
     description: "Another flake parameters"
     default: ""
