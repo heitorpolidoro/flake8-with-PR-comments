@@ -123,7 +123,7 @@ def main():
     comments = []
     for linter in linters:
         print(f"::group::{linter}")
-        parameters = os.environ.get(f"INPUT_{linter}_PARAMETERS", "")
+        parameters = os.environ.get(f"INPUT_{linter.upper()}_PARAMETERS", "")
         cmd = f"{linter} {default_parameters[linter]} {parameters}"
         print(cmd)
         returncode, outs = subprocess.getstatusoutput(cmd)
