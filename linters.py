@@ -44,26 +44,6 @@ def already_commented(file, diff_index, body, comments):
     return False
 
 
-# def parse_flake():
-#     flake_cmd = 'flake8 --show-source ' + os.environ.get('INPUT_FLAKE_PARAMETERS', '')
-#     print(flake_cmd)
-#     returncode, outs = subprocess.getstatusoutput(flake_cmd)
-#     print(outs)
-#     lint_error = None
-#     errors = {}
-#     for line in outs.split('\n'):
-#         if line.startswith('./'):
-#             if lint_error:
-#                 errors[lint_error.filename] = errors.get(lint_error.filename, []) + [lint_error]
-#             info = re.search(r'\./(?P<path>.*?):\d*:\d*: *(?P<error>.*)', line).groupdict()
-#             lint_error = LintError(info['path'], info['error'])
-#         elif lint_error:
-#             lint_error.add_comment_line(line)
-#     if lint_error:
-#         errors[lint_error.filename] = errors.get(lint_error.filename, []) + [lint_error]
-#
-#     return errors, bool(returncode)
-
 def parse_shellcheck(outs):
     filename = None
     line_no = None
@@ -122,7 +102,7 @@ def main():
     final_returncode = 0
     comments = []
     for linter in linters:
-        print(f"::group::{linter}")
+        print(f"::group::Running {linter}")
         parameters = os.environ.get(f"INPUT_{linter.upper()}_PARAMETERS", "")
         cmd = f"{linter} {default_parameters[linter]} {parameters}"
         print(cmd)
@@ -146,22 +126,6 @@ def main():
             if error_comment not in pr_comments:
                 pr.create_review_comment(error_comment, commit, filename, int(line_no))
 
-
-
-        # for file in pr.get_files():
-        #     for diff_index, diff_code in enumerate(file.patch.split('\n')):
-        #         print(file.filename)
-        #         if file.filename == "entrypoint.sh":
-        #             print(file.filename, diff_index, diff_code)
-        #             pr.create_review_comment("body", commit, file.filename, 2)
-        #             exit()
-        #             if diff_code[0] == '+':
-        #                 for error in errors[file.filename]:
-        #                     if error.code == diff_code[1:]:
-        #                         body = error.comment
-        #                         if not already_commented(file, diff_index, body, comments):
-        #                             pr.create_review_comment(body, commit, file.filename, diff_index)
-    # print('::endgroup::')
     exit(final_returncode)
 
 
