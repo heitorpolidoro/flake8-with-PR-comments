@@ -8,11 +8,11 @@ branding:
 inputs:
   linters:
     description: "List of linters to use"
-    default: ""
+    default: "a"
     required: true
   flake_parameters:
     description: "Another flake parameters"
-    default: ""
+    default: "b"
     required: false
 
 runs:

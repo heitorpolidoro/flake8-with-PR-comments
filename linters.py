@@ -107,8 +107,6 @@ def main():
     available_linters = {name: func for name, func in globals().items() if name.startswith("parse_")}
     linters = os.environ.get('INPUT_LINTERS').split()
 
-
-
     invalid_linters = [l for l in linters if l not in available_linters]
     if invalid_linters:
         if len(invalid_linters) == 1:
@@ -143,8 +141,6 @@ def main():
             if error_comment not in pr_comments:
                 commit.create_comment(error_comment, path=filename, position=int(line_no))
 
-
-
         # for file in pr.get_files():
         #     for diff_index, diff_code in enumerate(file.patch.split('\n')):
         #         print(file.filename)
@@ -162,4 +158,5 @@ def main():
     # exit(fail)
 
 
+os.system("env")
 main()
