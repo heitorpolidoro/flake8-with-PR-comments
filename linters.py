@@ -127,6 +127,7 @@ def main():
         cmd = f"{linter} {default_parameters[linter]} {parameters}"
         print(cmd)
         returncode, outs = subprocess.getstatusoutput(cmd)
+        print(outs)
         final_returncode = final_returncode or returncode
         comments.extend(available_linters[f"parse_{linter}"](outs))
         print('::endgroup::')
