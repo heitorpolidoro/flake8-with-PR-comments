@@ -136,13 +136,12 @@ def main():
         pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
         commit = list(pr.get_commits())[-1]
         pr_comments = [comment.body for comment in pr.get_comments()]
-        comments = [c for c in comments if c[2] not in pr_comments]
         for comment in comments:
             filename, line_no, error_comment = comment
             if isinstance(error_comment, list):
                 error_comment = "\n".join(error_comment)
-            pr.create_review_comment("body", commit, filename, int(line_no))
-            pr.create_review_comment(error_comment, commit, filename, int(line_no))
+            if error_comment not in pr_comments:
+                commit.create_comment(error_comment, path=filename, position=int(line_no))
 
 
 
