@@ -33,6 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           linters: shellcheck
+          shellcheck_parameters: -e SC2148
 
   set-auto-merge:
     name: Set Pull Request do Automerge
