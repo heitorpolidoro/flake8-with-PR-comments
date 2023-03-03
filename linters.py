@@ -83,7 +83,7 @@ def parse_shellcheck(outs):
 
 
 default_parameters = {
-    "shellcheck": "$(shfmt -f .)"
+    "shellcheck": "$(shfmt -f .) -e SC2148"
 }
 
 
