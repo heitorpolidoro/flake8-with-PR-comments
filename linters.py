@@ -110,10 +110,10 @@ def main():
     invalid_linters = [l for l in linters if l not in available_linters]
     if invalid_linters:
         if len(invalid_linters) == 1:
-            print(f"Linter {invalid_linters[0]} is not available.")
+            print(f"Linter '{invalid_linters[0]}' is not available.")
         else:
             print(f"Linters {', '.join(invalid_linters)} are not available.")
-        print(f"Available lints: {', '.join([l.replace('parse_', '') for l in available_linters.keys()])}")
+        print(f"Available linters: {', '.join([l.replace('parse_', '') for l in available_linters.keys()])}")
 
     final_returncode = 0
     comments = []
