@@ -18,12 +18,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: pip install PyGithub shfmt-py
-      name: Installing dependencies
+    - name: Installing dependencies
+      run: pip install PyGithub shfmt-py
       shell: bash
 
-    - run: python ${{ github.action_path }}/linters.py
-      name: Running linters
+    - name: Running linters
+      run: python $GITHUB_ACTION_PATH/linters.py
       shell: bash
       env:
         INPUT_LINTERS: ${{ inputs.linters }}
