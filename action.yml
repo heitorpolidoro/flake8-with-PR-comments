@@ -6,11 +6,27 @@ branding:
   icon: check-square
 
 inputs:
-  flake_parameters:
-    description: "Another flake parameters"
+  linters:
+    description: "List of linters to use"
+    default: ""
+    required: true
+  shellcheck_parameters:
+    description: "shellcheck parameters"
     default: ""
     required: false
 
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: "composite"
+  steps:
+    - name: Installing dependencies
+      run: pip install PyGithub shfmt-py
+      shell: bash
+
+    - name: Running linters
+      run: python $GITHUB_ACTION_PATH/linters.py
+      shell: bash
+      env:
+        INPUT_LINTERS: ${{ inputs.linters }}
+        INPUT_SHELLCHECK_PARAMETERS: ${{ inputs.shellcheck_parameters }}
+
+
