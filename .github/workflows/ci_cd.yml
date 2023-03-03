@@ -28,11 +28,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Linter
-        uses: heitorpolidoro/lint-with-PR-comments@CU-864e3hjz0_shellcheck
+        uses: heitorpolidoro/lint-with-PR-comments@CU-864e3hjzw_shfmt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          linters: shellcheck
+          linters: shellcheck shfmt
 
   set-auto-merge:
     name: Set Pull Request do Automerge
