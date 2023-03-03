@@ -127,7 +127,6 @@ def main():
         cmd = f"{linter} {default_parameters[linter]} {parameters}"
         print(cmd)
         returncode, outs = subprocess.getstatusoutput(cmd)
-        print(returncode, outs)
         final_returncode = final_returncode or returncode
         comments.extend(available_linters[f"parse_{linter}"](outs))
         print('::endgroup::')
@@ -144,7 +143,9 @@ def main():
             if isinstance(error_comment, list):
                 error_comment = "\n".join(error_comment)
             if error_comment not in pr_comments:
-                commit.create_comment(error_comment, path=filename, position=int(line_no))
+                pr.create_review_comment(error_comment, commit, filename, int(line_no))
+
+
 
         # for file in pr.get_files():
         #     for diff_index, diff_code in enumerate(file.patch.split('\n')):
@@ -160,7 +161,7 @@ def main():
         #                         if not already_commented(file, diff_index, body, comments):
         #                             pr.create_review_comment(body, commit, file.filename, diff_index)
     # print('::endgroup::')
-    # exit(fail)
+    exit(final_returncode)
 
 
 main()
