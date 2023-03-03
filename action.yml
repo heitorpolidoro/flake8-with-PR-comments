@@ -26,5 +26,7 @@ runs:
 
     - run: python linters.py
       shell: bash
+      env:
+        INPUT_LINTERS: ${{ inputs.linters }}
 
 
