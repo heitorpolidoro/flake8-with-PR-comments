@@ -111,7 +111,7 @@ def main():
     available_linters = {name: func for name, func in globals().items() if name.startswith("parse_")}
     linters = os.environ.get('INPUT_LINTERS').split()
 
-    invalid_linters = [l for l in linters if l not in available_linters]
+    invalid_linters = [linter for linter in linters if f"parse_{linter}" not in available_linters]
     if invalid_linters:
         if len(invalid_linters) == 1:
             print(f"Linter '{invalid_linters[0]}' is not available.")
@@ -127,6 +127,7 @@ def main():
         cmd = f"{linter} {default_parameters[linter]} {parameters}"
         print(cmd)
         returncode, outs = subprocess.getstatusoutput(cmd)
+        print(returncode, outs)
         final_returncode = final_returncode or returncode
         comments.extend(available_linters[f"parse_{linter}"](outs))
         print('::endgroup::')
