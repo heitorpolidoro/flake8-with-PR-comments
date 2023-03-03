@@ -83,7 +83,11 @@ def parse_shellcheck(outs):
             error_code = re.match(r'.*wiki/(.*) --.*', line).group(1)
             errors_ref[error_code] = line
         elif line.strip():
-            errors.append(line)
+            try:
+                errors.append(line)
+            except AttributeError:
+                print(line)
+                raise
         elif filename:
             comments.append((filename, line_no, ["```"] + errors + ["```"]))
             filename = None
@@ -158,5 +162,4 @@ def main():
     # exit(fail)
 
 
-os.system("env")
 main()
