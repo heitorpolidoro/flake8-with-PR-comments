@@ -89,8 +89,13 @@ def main():
             pr = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])[0]
             commit = list(pr.get_commits())[-1]
             pr_comments = [comment.body for comment in pr.get_comments()]
+            print("::group::Commenting")
             for comment in comments:
-                Comment(pr, token, commit.sha, **comment).post()
+                # Comment(pr, token, commit.sha, **comment)
+                com = Comment(repo, pr, token, commit.sha, **comment)
+                if com.comments not in pr_comments:
+                    com.post()
+            print('::endgroup::')
 
     exit(final_returncode)
 

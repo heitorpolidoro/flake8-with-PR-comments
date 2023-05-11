@@ -1,3 +1,4 @@
+import base64
 import json
 from functools import lru_cache
 from json import JSONDecodeError
@@ -15,8 +16,8 @@ def get_file(pr, filename):
             return file
 
 class Comment:
-    def __init__(self, pr, token, commit_id, filename, code, comments=None, as_code=False, as_suggestion=False):
-
+    def __init__(self, repo, pr, token, commit_id, filename, code, comments=None, as_code=False, as_suggestion=False):
+        self.repo = repo
         self.pr = pr
         self.token = token
         self.commit_id = commit_id
@@ -29,11 +30,13 @@ class Comment:
         self._comments = comments or []
         self.as_code = as_code
         self.as_suggestion = as_suggestion
-        self._define_lines()
 
     def post(self):
+        self._define_lines()
         nones = [k for k, v in self.__dict__.items() if v is None]
         assert [] == nones, ", ".join(nones) + " can't be None"
+        print(f"Commenting in {self.filename}:{self.start_line}")
+
         data = json.dumps({
                   "body": self.comments,
                   "path": self.filename,
@@ -59,15 +62,22 @@ class Comment:
             raise
 
     def _define_lines(self):
-        hunk_index = 0
+        # hunk_index = 0
         file = get_file(self.pr, self.filename)
-        for diff_index, diff_code in enumerate(file.patch.split('\n')):
-            if diff_code[0] in ["+", " "]:
-                hunk_index += 1
-            if diff_code.strip() == f"+{self.code[0]}":
-                self.start_line = hunk_index
-                self.end_line = hunk_index + len(self.code)
-                break
+        file_content = base64.b64decode(self.repo.get_contents(file.filename, ref=self.commit_id).content).decode().split("\n")
+        starting_index = file_content.index(self.code[0])
+        for index in range(starting_index, len(file_content)):
+            if file_content[index:index+len(self.code)] == self.code:
+                self.start_line = index
+                self.end_line = index + len(self.code)
+        pass
+        # for diff_index, diff_code in enumerate(file.patch.split('\n')):
+        #     if diff_code[0] in ["+", " "]:
+        #         hunk_index += 1
+        #     if diff_code.strip() == f"+{self.code[0]}":
+        #         self.start_line = hunk_index
+        #         self.end_line = hunk_index + len(self.code)
+        #         break
 
 
     @property

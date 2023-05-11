@@ -25,13 +25,16 @@ class LinterParser:
                     return _m.group(0)
 
         def _add_comment(_filename, _code, _errors):
-            comments.append({
-                "filename": _filename,
-                "code": _code,
-                "comments": _errors,
-                "as_code": self.as_code,
-                "as_suggestion": self.as_suggestion
-            })
+            if _code and _errors:
+                comments.append({
+                    "filename": _filename,
+                    "code": _code.copy(),
+                    "comments": _errors.copy(),
+                    "as_code": self.as_code,
+                    "as_suggestion": self.as_suggestion
+                })
+                _code.clear()
+                _errors.clear()
 
         filename = None
         code = []
@@ -40,10 +43,7 @@ class LinterParser:
         for line in output.split("\n"):
             break_comment = _match(self.break_comment_regex, line)
             if break_comment:
-                if code and errors:
-                    _add_comment(filename, code, errors)
-                    code = []
-                    errors = []
+                _add_comment(filename, code, errors)
                 continue
             match_filename = _match(self.filename_regex, line)
             if match_filename:
@@ -59,9 +59,10 @@ class LinterParser:
             if match_code is not None:
                 code.append(match_code)
                 continue
+            if code and errors:
+                _add_comment(filename, code, errors)
 
-        if code and errors:
-            _add_comment(filename, code, errors)
+        _add_comment(filename, code, errors)
         return comments
 
 class ShellCheckParser(LinterParser):
@@ -84,5 +85,11 @@ class ShellCheckParser(LinterParser):
 
 available_linters = {
     "shellcheck": ShellCheckParser(),
-    "shfmt": LinterParser(r'\+\+\+ (.*)', r"\+(.*)", r"-([^-].*)?$", break_comment_regex=r"@@", as_suggestion=True)
+    "shfmt": LinterParser(
+        filename_regex=r'\+\+\+ (.*)',
+        error_regex=r"\+(.*)",
+        code_regex=r"-([^-].*)?$",
+        break_comment_regex=r"@@",
+        as_suggestion=True
+    )
 }
