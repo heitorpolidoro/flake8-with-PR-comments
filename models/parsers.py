@@ -1,12 +1,9 @@
 import json
 import re
-from collections import defaultdict
-
-from models.comment import Comment
 
 
 class LinterParser:
-    def __init__(self, filename_regex=None, error_regex=None, code_regex=r"(.*)", as_code=False, as_suggestion=False, 
+    def __init__(self, filename_regex=None, error_regex=None, code_regex=r"(.*)", as_code=False, as_suggestion=False,
                  break_comment_regex=None):
         self.filename_regex = filename_regex
         self.error_regex = error_regex
@@ -65,6 +62,7 @@ class LinterParser:
         _add_comment(filename, code, errors)
         return comments
 
+
 class ShellCheckParser(LinterParser):
     def parse(self, output):
         comments = {}
@@ -83,6 +81,23 @@ class ShellCheckParser(LinterParser):
         return merged_comments
 
 
+class LineParser(LinterParser):
+    def __init__(self, *args, line_regex=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.line_regex = line_regex
+
+    def parse(self, output):
+        comments = []
+        for line in output.split("\n"):
+            match = re.match(self.line_regex, line)
+            if match:
+                dict_info = match.groupdict()
+                dict_info["start_line"] = int(dict_info["start_line"])
+                dict_info["end_line"] = dict_info["start_line"]
+                comments.append(dict_info)
+        return comments
+
+
 available_linters = {
     "shellcheck": ShellCheckParser(),
     "shfmt": LinterParser(
@@ -91,5 +106,6 @@ available_linters = {
         code_regex=r"-([^-].*)?$",
         break_comment_regex=r"@@",
         as_suggestion=True
-    )
+    ),
+    "flake8": LineParser(line_regex=r"(?P<filename>[^:]+):(?P<start_line>\d+):\d+: (?P<comments>.*)"),
 }
