@@ -1,6 +1,6 @@
 #!/bin/python
-import inspect
 import json
+import inspect
 import os
 import re
 import subprocess

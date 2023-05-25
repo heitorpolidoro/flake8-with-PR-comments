@@ -107,5 +107,5 @@ available_linters = {
         break_comment_regex=r"@@",
         as_suggestion=True
     ),
-    "flake8": LineParser(line_regex=r"(?P<filename>[^:]+):(?P<start_line>\d+):\d+: (?P<comments>.*)"),
+    "flake8": LineParser(line_regex=r"\./(?P<filename>[^:]+):(?P<start_line>\d+):\d+: (?P<comments>.*)"),
 }
