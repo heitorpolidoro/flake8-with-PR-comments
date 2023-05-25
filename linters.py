@@ -1,6 +1,8 @@
 #!/bin/python
+import inspect
 import json
 import os
+import re
 import subprocess
 from json import JSONDecodeError
 from string import Template
@@ -12,44 +14,31 @@ from models.comment import Comment
 from models.parsers import available_linters
 
 
-def _request(method, url, headers, data=None):
-    resp = requests.request(method, url, data=data, headers=headers)
+def gitlab_group(group_name):
+    def wrapper(f):
+        params = []
+        for var in re.findall(r'\$(\w+)', group_name):
+            if var in inspect.signature(f).parameters:
+                params.append(var)
 
-    try:
-        resp.raise_for_status()
-        return json.loads(resp.content)
-    except JSONDecodeError:
-        return resp.content
-    except Exception:
-        print(json.loads(resp.content))
-        raise
-
-
-def _get(url, headers):
-    return _request('get', url, headers)
-
-
-def _post(url, data, headers):
-    return _request('post', url, headers, data)
-
-
-def gitlab_action_group(info):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            info_ = info
-            if "$" in info_:
-                info_ = Template(info).safe_substitute(**kwargs)
-            arg_index = 0
-            while "$" in info_ and arg_index < len(args):
-                info_ = Template(info_).safe_substitute(**{f"arg{arg_index}": args[arg_index]})
-            print(f"::group::{info_}")
-            resp = func(*args, **kwargs)
-            print('::endgroup::')
+        def inner_wrapper(*args, **kwargs):
+            template_dict = {}
+            args = list(args)
+            for param in params:
+                if param in kwargs:
+                    template_dict[param] = kwargs[param]
+                    continue
+                for index, name in enumerate(inspect.signature(f).parameters):
+                    if param == name:
+                        template_dict[name] = args[index]
+            print(f"::group::{Template(group_name).safe_substitute(**template_dict)}")
+            resp = f(*args, **kwargs)
+            print("::endgroup::")
             return resp
 
-        return wrapper
+        return inner_wrapper
 
-    return decorator
+    return wrapper
 
 
 default_parameters = {
@@ -60,7 +49,7 @@ default_parameters = {
 
 
 def main():
-    linters = os.environ.get('INPUT_LINTERS').split()
+    linters = os.getenv('INPUT_LINTERS').split()
 
     invalid_linters = [linter for linter in linters if linter not in available_linters]
     if invalid_linters:
@@ -90,9 +79,9 @@ def main():
     exit(final_returncode)
 
 
-@gitlab_action_group('Running $arg0')
+@gitlab_group('Running $linter')
 def run_linter(linter):
-    parameters = os.environ.get(f"INPUT_{linter.upper()}_PARAMETERS", "")
+    parameters = os.getenv(f"INPUT_{linter.upper()}_PARAMETERS", "")
     cmd = f"{linter} {parameters} {default_parameters.get(linter, '')}"
     print(cmd)
     returncode, outs = subprocess.getstatusoutput(cmd)
@@ -100,7 +89,7 @@ def run_linter(linter):
     return returncode, comments
 
 
-@gitlab_action_group('Commenting')
+@gitlab_group('Commenting')
 def do_comment(comments, pr, repo, token):
     commit = list(pr.get_commits())[-1]
     pr_comments = [comment.body for comment in pr.get_comments()]
@@ -110,4 +99,5 @@ def do_comment(comments, pr, repo, token):
             com.post()
 
 
-main()
+if __name__ == "__main__":
+    main()
