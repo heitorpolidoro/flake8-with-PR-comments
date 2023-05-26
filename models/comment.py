@@ -67,7 +67,10 @@ class Comment:
         except JSONDecodeError:
             return resp.content
         except Exception as e:
-            if any('pull_request_review_thread.line must be part of the diff' in e.get("message", "") for e in json.loads(resp.content)["errors"]):
+            if any(
+                    'pull_request_review_thread.line must be part of the diff' in e.get("message", "")
+                    for e in json.loads(resp.content)["errors"]
+            ):
                 pass
             else:
                 print(json.loads(resp.content))
