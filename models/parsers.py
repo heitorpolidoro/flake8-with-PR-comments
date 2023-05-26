@@ -93,7 +93,6 @@ class LineParser(LinterParser):
             if match:
                 dict_info = match.groupdict()
                 dict_info["start_line"] = int(dict_info["start_line"])
-                dict_info["end_line"] = dict_info["start_line"] + 1
                 comments.append(dict_info)
         return comments
 

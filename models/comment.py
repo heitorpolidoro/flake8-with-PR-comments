@@ -36,26 +36,30 @@ class Comment:
         self.as_suggestion = as_suggestion
 
     def post(self):
-        if any(l_ is None for l_ in [self.start_line, self.end_line]):
+        if self.start_line is None:
             self._define_lines()
-        nones = [k for k, v  in self.__dict__.items() if v is None]
+        nones = [k for k, v  in self.__dict__.items() if v is None and k != "end_line"]
         assert [] == nones, ", ".join(nones) + " can't be None"
         print(f"Commenting in {self.filename}:{self.start_line}")
 
-        data = json.dumps({
+        data = {
             "body": self.comments,
             "path": self.filename,
             "commit_id": self.commit_id,
-            "start_line": self.start_line,
-            "line": self.end_line
-        })
+        }
+        if self.end_line is None:
+            data["line"] = self.start_line
+        else:
+            data["start_line"] = self.start_line
+            data["line"] = self.end_line
+
         headers = {
             'Authorization': f'token {self.token}',
             'User-Agent': 'PyGithub/Python',
             'Content-Type': 'application/json',
             "X-GitHub-Api-Version": "2022-11-28"
         }
-        resp = requests.post(f"{self.pr.url}/comments", data=data, headers=headers)
+        resp = requests.post(f"{self.pr.url}/comments", json=data, headers=headers)
 
         try:
             resp.raise_for_status()
