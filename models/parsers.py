@@ -88,6 +88,7 @@ class LineParser(LinterParser):
 
     def parse(self, output):
         comments = []
+        print(output)
         for line in output.split("\n"):
             match = re.match(self.line_regex, line)
             if match:
