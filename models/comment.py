@@ -66,7 +66,7 @@ class Comment:
             return json.loads(resp.content)
         except JSONDecodeError:
             return resp.content
-        except:
+        except Exception:
             print(json.loads(resp.content))
             raise
 

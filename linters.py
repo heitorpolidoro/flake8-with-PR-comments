@@ -79,7 +79,7 @@ def main():
     exit(final_returncode)
 
 
-@gitlab_group('Running $linter')
+@gitlab_group('Running $linter...')
 def run_linter(linter):
     parameters = os.getenv(f"INPUT_{linter.upper()}_PARAMETERS", "")
     cmd = f"{linter} {parameters} {default_parameters.get(linter, '')}"
