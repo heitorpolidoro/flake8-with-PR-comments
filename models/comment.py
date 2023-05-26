@@ -66,9 +66,12 @@ class Comment:
             return json.loads(resp.content)
         except JSONDecodeError:
             return resp.content
-        except Exception:
-            print(json.loads(resp.content))
-            raise
+        except Exception as e:
+            if any('pull_request_review_thread.line must be part of the diff' in e.get("message", "") for e in json.loads(resp.content)["errors"]):
+                pass
+            else:
+                print(json.loads(resp.content))
+                raise
 
     def _define_lines(self):
         # hunk_index = 0
