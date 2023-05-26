@@ -19,8 +19,8 @@ def get_file(pr, filename):
 
 
 class Comment:
-    def __init__(self, repo, pr, token, commit_id, filename, code=None, comments=None, as_code=False, as_suggestion=False,
-                 start_line=None, end_line=None):
+    def __init__(self, repo, pr, token, commit_id, filename, code=None, comments=None, as_code=False,
+                 as_suggestion=False, start_line=None, end_line=None):
         self.repo = repo
         self.pr = pr
         self.token = token
@@ -38,7 +38,7 @@ class Comment:
     def post(self):
         if self.start_line is None:
             self._define_lines()
-        nones = [k for k, v  in self.__dict__.items() if v is None and k != "end_line"]
+        nones = [k for k, v in self.__dict__.items() if v is None and k != "end_line"]
         assert [] == nones, ", ".join(nones) + " can't be None"
         print(f"Commenting in {self.filename}:{self.start_line}")
 

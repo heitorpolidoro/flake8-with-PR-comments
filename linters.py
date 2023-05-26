@@ -1,13 +1,10 @@
 #!/bin/python
-import json
 import inspect
 import os
 import re
 import subprocess
-from json import JSONDecodeError
 from string import Template
 
-import requests
 from github import Github
 
 from models.comment import Comment
@@ -67,14 +64,12 @@ def main():
         final_returncode = final_returncode or linter_returncode
         comments.extend(linter_comments)
 
-    print(comments, final_returncode)
     if comments:
         token = os.environ['GITHUB_TOKEN']
         gh = Github(token)
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
 
-        print(prs)
         if prs:
             do_comment(comments, prs[0], repo, token)
 
@@ -88,7 +83,6 @@ def run_linter(linter):
     print(cmd)
     returncode, outs = subprocess.getstatusoutput(cmd)
     comments = available_linters[linter].parse(outs)
-    print(returncode, outs)
     return returncode, comments
 
 
