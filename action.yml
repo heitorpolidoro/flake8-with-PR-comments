@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Installing dependencies
-      run: pip install PyGithub shfmt-py
+      run: pip install PyGithub
       shell: bash
 
     - name: Running linters

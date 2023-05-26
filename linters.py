@@ -67,12 +67,14 @@ def main():
         final_returncode = final_returncode or linter_returncode
         comments.extend(linter_comments)
 
+    print(comments)
     if comments:
         token = os.environ['GITHUB_TOKEN']
         gh = Github(token)
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
 
+        print(prs)
         if prs:
             do_comment(comments, prs[0], repo, token)
 
