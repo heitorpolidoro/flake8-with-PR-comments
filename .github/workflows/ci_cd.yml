@@ -25,7 +25,7 @@ jobs:
           heitorpolidoro: ${{ secrets.HEITORPOLIDORO_PAT }}
 
 # Any branch
-tests:
+  tests:
     name: Tests
     runs-on: ubuntu-latest
     strategy:
