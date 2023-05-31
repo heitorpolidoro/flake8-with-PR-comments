@@ -25,17 +25,54 @@ jobs:
           heitorpolidoro: ${{ secrets.HEITORPOLIDORO_PAT }}
 
 # Any branch
-#  tests:
-#    name: Tests
-#    runs-on: ubuntu-latest
-#    if: github.event_name != 'workflow_dispatch'
-#
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - name: Tests
-#        run: ./tests.sh
+tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", 3.11]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          # This path is specific to Ubuntu
+          path: ~/.cache/pip
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run tests
+        if: matrix.python-version != '3.11'
+        run: |
+          pytest
+
+      - name: Run tests
+        if: matrix.python-version == '3.11'
+        run: |
+          pytest --cov --cov-report=xml
+
+      - name: Send to Coverall
+        env:
+          GITHUB_TOKEN: ${{ secrets.HEITORPOLIDORO_PAT }}
+        if: matrix.python-version == '3.11'
+        run: COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_REPO_TOKEN }} coveralls
 
   sonarcloud:
     name: SonarCloud

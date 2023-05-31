@@ -1,99 +1,50 @@
-#!/bin/python
-import inspect
 import os
-import re
-import subprocess
-from string import Template
 
 from github import Github
 
-from models.comment import Comment
-from models.parsers import available_linters
+from models.parsers import LinterParser
 
 
-def gitlab_group(group_name):
-    def wrapper(f):
-        params = []
-        for var in re.findall(r'\$(\w+)', group_name):
-            if var in inspect.signature(f).parameters:
-                params.append(var)
+def get_linters():
+    linters = os.getenv('INPUT_LINTERS').split()
 
-        def inner_wrapper(*args, **kwargs):
-            template_dict = {}
-            args = list(args)
-            for param in params:
-                if param in kwargs:
-                    template_dict[param] = kwargs[param]
-                    continue
-                for index, name in enumerate(inspect.signature(f).parameters):
-                    if param == name:
-                        template_dict[name] = args[index]
-            print(f"::group::{Template(group_name).safe_substitute(**template_dict)}")
-            resp = f(*args, **kwargs)
-            print("::endgroup::")
-            return resp
-
-        return inner_wrapper
-
-    return wrapper
-
-
-default_parameters = {
-    "shellcheck": "$(shfmt -f .) -e SC2148 -f json",
-    "shfmt": "-d .",
-    "flake8": "",
-}
+    return [LinterParser.get_linter(linter) for linter in linters]
 
 
 def main():
-    linters = os.getenv('INPUT_LINTERS').split()
+    token = os.environ['GITHUB_TOKEN']
+    gh = Github(token)
+    repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
+    prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
+    pr = prs[0]
+    commit = list(pr.get_commits())[-1]
+    pr.create_review_comment("body", commit, "linters.py", 2)
+    pr.create_review_comment("body\nbody2", commit, "linters.py", 17, 14, as_suggestion=True)
 
-    invalid_linters = [linter for linter in linters if linter not in available_linters]
-    if invalid_linters:
-        if len(invalid_linters) == 1:
-            print(f"Linter '{invalid_linters[0]}' is not available.")
-        else:
-            print(f"Linters {', '.join(invalid_linters)} are not available.")
-        print(f"Available linters: {', '.join([l.replace('parse_', '') for l in available_linters.keys()])}")
-        exit(1)
-
-    final_returncode = 0
-    comments = []
+    linters = get_linters()
+    comments = {}
+    returncode = 0
     for linter in linters:
-        linter_returncode, linter_comments = run_linter(linter)
-        final_returncode = final_returncode or linter_returncode
-        comments.extend(linter_comments)
+        linter_returncode, linter_comments = linter.run()
+        returncode = returncode or linter_returncode
+        comments.update(linter_comments)
 
     if comments:
         token = os.environ['GITHUB_TOKEN']
         gh = Github(token)
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
-
         if prs:
-            do_comment(comments, prs[0], repo, token)
-
-    exit(final_returncode)
-
-
-@gitlab_group('Running $linter...')
-def run_linter(linter):
-    parameters = os.getenv(f"INPUT_{linter.upper()}_PARAMETERS", "")
-    cmd = f"{linter} {parameters} {default_parameters.get(linter, '')}"
-    print(cmd)
-    returncode, outs = subprocess.getstatusoutput(cmd)
-    comments = available_linters[linter].parse(outs)
-    return returncode, comments
-
-
-@gitlab_group('Commenting')
-def do_comment(comments, pr, repo, token):
-    commit = list(pr.get_commits())[-1]
-    pr_comments = [comment.body for comment in pr.get_comments()]
-    for comment in comments:
-        com = Comment(repo, pr, token, commit.sha, **comment)
-        if com.comments not in pr_comments:
-            com.post()
+            pr = prs[0]
+            for file, comments in comments.items():
+                for comment in comments:
+                    pr.create_review_comment(
+                        comment["comment"],
+                        commit,
+                        file,
+                        comment["line"],
+                        comment.get("start_line"),
+                        as_suggestion=comment["as_suggestion"])
 
 
 if __name__ == "__main__":
