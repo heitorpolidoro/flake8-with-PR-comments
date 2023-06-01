@@ -36,7 +36,7 @@ def main():
                         file,
                         comment["line"],
                         comment.get("start_line"),
-                        as_suggestion=comment["as_suggestion"])
+                        as_suggestion=comment.get("as_suggestion", False))
 
 
 if __name__ == "__main__":
