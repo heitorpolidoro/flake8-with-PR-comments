@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Installing dependencies
-      run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
+      run: pip install -r $GITHUB_ACTION_PATH/requirements.txt -U
       shell: bash
 
     - name: Running linters
