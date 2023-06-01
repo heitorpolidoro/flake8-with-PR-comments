@@ -12,15 +12,6 @@ def get_linters():
 
 
 def main():
-    token = os.environ['GITHUB_TOKEN']
-    gh = Github(token)
-    repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
-    prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
-    pr = prs[0]
-    commit = list(pr.get_commits())[-1]
-    pr.create_review_comment("body", commit, "linters.py", 2)
-    pr.create_review_comment("body\nbody2", commit, "linters.py", 17, 14, as_suggestion=True)
-
     linters = get_linters()
     comments = {}
     returncode = 0
@@ -36,6 +27,7 @@ def main():
         prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
         if prs:
             pr = prs[0]
+            commit = list(pr.get_commits())[-1]
             for file, comments in comments.items():
                 for comment in comments:
                     pr.create_review_comment(
