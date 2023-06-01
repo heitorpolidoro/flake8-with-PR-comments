@@ -1,3 +1,4 @@
 flake8==6.0.0
 PyGithub @ git+https://github.com/heitorpolidoro/PyGithub.git@fix_create_comment_issues
 requests==2.31.0
+github-actions-utils<=1.0

@@ -1,12 +1,11 @@
+import json
 import os
 import re
 import subprocess
 from collections import defaultdict
 from typing import Any
 
-from github_actions_utils.log_utils import gitlab_group
-
-import json
+from github_actions_utils.log_utils import github_group
 
 
 class LinterParser:
@@ -21,7 +20,7 @@ class LinterParser:
         raise ValueError(f"Unknown linter: {linter}")
 
     @classmethod
-    @gitlab_group('Running $(cls.cmd)...')
+    @github_group('Running $(cls.cmd)...')
     def run(cls):
         parameters = os.getenv(f"INPUT_{cls.cmd.upper()}_PARAMETERS", "")
         cmd = f"{cls.cmd} {parameters} {cls.default_parameters}"
