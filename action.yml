@@ -18,6 +18,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Debug
+      run: pwd
+      shell: bash
+
+    - name: Debug
+      run: ls
+      shell: bash
+
     - name: Installing dependencies
       run: pip install -r requirements.txt
       shell: bash
