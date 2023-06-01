@@ -1,95 +1,146 @@
-import json
+import os
 import re
+import subprocess
 from collections import defaultdict
+from typing import Any
 
-from models.comment import Comment
+from github_actions_utils.log_utils import gitlab_group
+
+import json
 
 
 class LinterParser:
-    def __init__(self, filename_regex=None, error_regex=None, code_regex=r"(.*)", as_code=False, as_suggestion=False, 
-                 break_comment_regex=None):
-        self.filename_regex = filename_regex
-        self.error_regex = error_regex
-        self.code_regex = code_regex
-        self.as_code = as_code
-        self.as_suggestion = as_suggestion
-        self.break_comment_regex = break_comment_regex
+    cmd = ""
+    default_parameters = ""
 
-    def parse(self, output):
-        def _match(regex, txt):
-            _m = re.match(regex, txt)
-            if _m:
-                try:
-                    return _m.group(1) or ''
-                except IndexError:
-                    return _m.group(0)
+    @staticmethod
+    def get_linter(linter):
+        for l_ in LinterParser.__subclasses__():
+            if l_.cmd == linter:
+                return l_
+        raise ValueError(f"Unknown linter: {linter}")
 
-        def _add_comment(_filename, _code, _errors):
-            if _code and _errors:
-                comments.append({
-                    "filename": _filename,
-                    "code": _code.copy(),
-                    "comments": _errors.copy(),
-                    "as_code": self.as_code,
-                    "as_suggestion": self.as_suggestion
-                })
-                _code.clear()
-                _errors.clear()
+    @classmethod
+    @gitlab_group('Running $(cls.cmd)...')
+    def run(cls):
+        parameters = os.getenv(f"INPUT_{cls.cmd.upper()}_PARAMETERS", "")
+        cmd = f"{cls.cmd} {parameters} {cls.default_parameters}"
+        print(cmd)
+        returncode, outs = cls._inner_run(cmd)
+        comments = cls.parse(outs)
+        return returncode, comments
 
-        filename = None
-        code = []
-        errors = []
-        comments = []
-        for line in output.split("\n"):
-            break_comment = _match(self.break_comment_regex, line)
-            if break_comment:
-                _add_comment(filename, code, errors)
-                continue
-            match_filename = _match(self.filename_regex, line)
-            if match_filename:
-                if filename:
-                    _add_comment(filename, code, errors)
-                filename = match_filename
-                continue
-            match_error = _match(self.error_regex, line)
-            if match_error is not None:
-                errors.append(match_error)
-                continue
-            match_code = _match(self.code_regex, line)
-            if match_code is not None:
-                code.append(match_code)
-                continue
-            if code and errors:
-                _add_comment(filename, code, errors)
+    @classmethod
+    def _inner_run(cls, cmd):  # pragma: no cover
+        return subprocess.getstatusoutput(cmd)
 
-        _add_comment(filename, code, errors)
+    @classmethod
+    def parse(cls, input_str):  # pragma: no cover
+        raise NotImplementedError
+
+
+class ShfmtParser(LinterParser):
+    cmd = "shfmt"
+    default_parameters = "-d ."
+
+    @classmethod
+    def parse(cls, output_dict):
+        comments = {}
+        for file, output_str in output_dict.items():
+            output_splited = re.split(r"(@@.*?@@\n)", output_str, flags=re.DOTALL)[1:]
+            chunks = []
+            for index in range(0, len(output_splited), 2):
+                lines_diff, suggestion = output_splited[index:index + 2]
+                start = int(re.search(r"@@.*-(?P<start>\d+),\d+", lines_diff).groupdict()["start"])
+                chunk = {}  # type: dict[str, Any]
+                suggestion_split = suggestion.split("\n")
+                line_num = 0
+                while line_num < len(suggestion_split):
+                    line = suggestion_split[line_num]
+                    if line.startswith("-") and not chunk.get("start"):
+                        chunk["start"] = line_num + start
+                    elif line.startswith("-") and chunk.get("start"):
+                        chunk["finish"] = line_num + start
+                    elif line.startswith("+"):
+                        chunk["comment"] = chunk.get("comment", "") + line[1:] + "\n"
+                    elif chunk:
+                        chunks.append(chunk)
+                        chunk = {}
+                    line_num += 1
+                if suggestion_split[-1].startswith("+"):
+                    chunks.append(chunk)
+            comments[file] = [dict(as_suggestion=True, **chunk) for chunk in chunks]
+
         return comments
 
+    @classmethod
+    def _inner_run(cls, cmd):
+        status, files = subprocess.getstatusoutput("shfmt -f .")
+        return_str = {}
+        for file in files.split("\n"):
+            output_status, output_str = subprocess.getstatusoutput(f"cat {file} | {cmd}")
+            status = status or output_status
+            return_str[file] = output_str
+
+        return status, return_str
+
+
 class ShellCheckParser(LinterParser):
-    def parse(self, output):
+    cmd = "shellcheck"
+    default_parameters = "-e SC2148 -f json"
+
+    @classmethod
+    def parse(cls, output_dict):
         comments = {}
-        for error in json.loads(output):
-            filename = error["file"]
-            code = [c.rstrip() for c in open(filename).readlines()[error["line"] - 1:error["endLine"]]]
-            key = json.dumps({"filename": filename, "code": code})
-            if key not in comments:
-                comments[key] = code
-            comments[key].append(
-                " " * (error["column"] - 1) + f"^-- SC{error['code']} ({error['level']}) {error['message']}")
+        for file, output_json in output_dict.items():
+            with open(file) as f:
+                file_content = f.readlines()
+            file_comments = []
+            for output in output_json:
+                message = file_content[output["line"] - 1]
+                message += '{0: >{size}}'.format("^", size=output["column"])
+                env_column_char = "^"
+                end_column = output["endColumn"] - output["column"] - 1
+                if end_column <= 0:
+                    end_column = 2
+                    env_column_char = "-"
+                message += '{0:->{size}}'.format(env_column_char, size=end_column)
+                message += f" {output['message']}"
+                file_comments.append({
+                    "start": output["line"],
+                    "comment": message,
+                })
+            comments[file] = file_comments
+        return comments
 
-        merged_comments = []
-        for k, v in comments.items():
-            merged_comments.append(dict(comments=v, as_code=True, **json.loads(k)))
-        return merged_comments
+    @classmethod
+    def _inner_run(cls, cmd):
+        status, files = subprocess.getstatusoutput("shfmt -f .")
+        return_json = {}
+        for file in files.split("\n"):
+            output_status, output_json = subprocess.getstatusoutput(f"{cmd} {file}")
+            status = status or output_status
+            return_json[file] = json.loads(output_json)
+
+        return status, return_json
 
 
-available_linters = {
-    "shellcheck": ShellCheckParser(),
-    "shfmt": LinterParser(
-        filename_regex=r'\+\+\+ (.*)',
-        error_regex=r"\+(.*)",
-        code_regex=r"-([^-].*)?$",
-        break_comment_regex=r"@@",
-        as_suggestion=True
-    )
-}
+class Flake8Parser(LinterParser):
+    cmd = "flake8"
+
+    @classmethod
+    def parse(cls, input_str):
+        comments = defaultdict(list)
+        for line in input_str.split("\n"):
+            if line:
+                file, line, column, message = line.split(":")
+                message = '\n{0: >{size}}'.format(f"^-- {message}", size=column)
+
+                if file.startswith("./"):
+                    file = file[2:]
+                comments[file].append({
+                    "start": int(line),
+                    "comment": message,
+                })
+
+        return comments
