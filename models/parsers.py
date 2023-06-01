@@ -56,10 +56,10 @@ class ShfmtParser(LinterParser):
                 line_num = 0
                 while line_num < len(suggestion_split):
                     line = suggestion_split[line_num]
-                    if line.startswith("-") and not chunk.get("start"):
-                        chunk["start"] = line_num + start
-                    elif line.startswith("-") and chunk.get("start"):
-                        chunk["finish"] = line_num + start
+                    if line.startswith("-") and not chunk.get("start_line"):
+                        chunk["start_line"] = line_num + start
+                    elif line.startswith("-") and chunk.get("start_line"):
+                        chunk["line"] = line_num + start
                     elif line.startswith("+"):
                         chunk["comment"] = chunk.get("comment", "") + line[1:] + "\n"
                     elif chunk:
@@ -106,7 +106,7 @@ class ShellCheckParser(LinterParser):
                 message += '{0:->{size}}'.format(env_column_char, size=end_column)
                 message += f" {output['message']}"
                 file_comments.append({
-                    "start": output["line"],
+                    "line": output["line"],
                     "comment": message,
                 })
             comments[file] = file_comments
@@ -138,7 +138,7 @@ class Flake8Parser(LinterParser):
                 if file.startswith("./"):
                     file = file[2:]
                 comments[file].append({
-                    "start": int(line),
+                    "line": int(line),
                     "comment": message,
                 })
 

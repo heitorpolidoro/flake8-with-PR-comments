@@ -6,21 +6,21 @@ def test_parse(sh_file):
     assert returncode == 1
     assert comments == {
         "test.py": [{'comment': "\n^--  F401 'os' imported but unused",
-                     'start': 2},
+                     'line': 2},
                     {'comment': '\n'
                                 '^--  E302 expected 2 blank lines, found '
                                 '1',
-                     'start': 4},
+                     'line': 4},
                     {'comment': '\n'
                                 '^--  E302 expected 2 blank lines, found '
                                 '1',
-                     'start': 7},
+                     'line': 7},
                     {'comment': '\n^--  E303 too many blank lines (3)',
-                     'start': 12},
+                     'line': 12},
                     {'comment': '\n'
                                 '^--  E305 expected 2 blank lines after '
                                 'class or function definition, found 1',
-                     'start': 22},
+                     'line': 22},
                     {'comment': '\n^--  W391 blank line at end of file',
-                     'start': 24}]
+                     'line': 24}]
     }

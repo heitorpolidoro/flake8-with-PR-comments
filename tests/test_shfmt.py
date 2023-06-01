@@ -11,20 +11,20 @@ def test_parse(sh_file):
                         "\techo 'Backup not enabled in $HOME/.myconfig, "
                         "exiting'\n"
                         '\texit 1\n',
-             'finish': 7,
-             'start': 4},
+             'line': 7,
+             'start_line': 4},
             {'as_suggestion': True,
              'comment': '\tverbose=\'-printf "Copying %f\n',
-             'start': 14},
+             'start_line': 14},
             {'as_suggestion': True,
              'comment': 'if [[ $1 =~ "-v(erbose)?" ]]; then\n'
                         '\tverbose=\'-printf "Copying %f\n',
-             'finish': 21,
-             'start': 19},
+             'line': 21,
+             'start_line': 19},
             {'as_suggestion': True,
              'comment': 'find backups/ -iname *.tar.gz $verbose -exec scp {} '
                         '“myhost:backups” +\n',
-             'finish': 28,
-             'start': 27}
+             'line': 28,
+             'start_line': 27}
         ]
     }
