@@ -25,7 +25,7 @@ def main():
         gh = Github(token)
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
-        if prs:
+        if prs.totalCount:
             pr = prs[0]
             commit = list(pr.get_commits())[-1]
             for file, comments in comments.items():
