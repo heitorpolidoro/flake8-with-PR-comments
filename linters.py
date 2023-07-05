@@ -1,6 +1,6 @@
 import os
 
-from github import Github
+from github import Github, GithubException
 
 from models.parsers import LinterParser
 
@@ -30,13 +30,12 @@ def main():
             commit = list(pr.get_commits())[-1]
             for file, comments in comments.items():
                 for comment in comments:
-                    pr.create_review_comment(
-                        comment["comment"],
-                        commit,
-                        file,
-                        comment["line"],
-                        comment.get("start_line"),
-                        as_suggestion=comment.get("as_suggestion", False))
+                    comment_body = comment.pop("comment")
+                    create_review_comment_args = comment
+                    try:
+                        pr.create_review_comment(comment_body, commit, file, **create_review_comment_args)
+                    except GithubException:
+                        print(f"Error in create comment at {file}:{create_review_comment_args}")
 
 
 if __name__ == "__main__":
