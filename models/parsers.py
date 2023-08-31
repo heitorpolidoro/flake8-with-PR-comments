@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 import subprocess
@@ -118,6 +119,7 @@ class ShellCheckParser(LinterParser):
         return_json = {}
         for file in files.split("\n"):
             output_status, output_json = subprocess.getstatusoutput(f"{cmd} {file}")
+            logging.debug(f"{output_status = } {output_json = }")
             status = status or output_status
             return_json[file] = json.loads(output_json)
 
