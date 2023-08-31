@@ -22,6 +22,7 @@ class LinterParser:
         cmd = f"{cls.cmd} {parameters} {cls.default_parameters}"
         print(cmd)
         returncode, outs = cls._inner_run(cmd)
+        print(returncode, outs)
         comments = cls.parse(outs)
         return returncode, comments
 
