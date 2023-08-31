@@ -1,0 +1,1 @@
+mypy . --show-error-end --no-error-summary --no-color-output

@@ -32,7 +32,8 @@ find backups/ \
   $verbose \
   -exec scp {}  “myhost:backups” +
 
-""")
+"""
+            )
         yield
     finally:
         os.remove("test.sh")
@@ -67,7 +68,8 @@ def main():
 if __name__ == '__main__':
     main()
 
-""")
+"""
+            )
         yield
     finally:
         os.remove("test.py")

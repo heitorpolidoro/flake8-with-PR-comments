@@ -1,12 +1,12 @@
 import os
 
-from github import Github, GithubException
+from github import Github
 
-from models.parsers import LinterParser
+from parsers.parser import LinterParser
 
 
 def get_linters():
-    linters = os.getenv('INPUT_LINTERS').split()
+    linters = os.getenv("INPUT_LINTERS").split()
 
     return [LinterParser.get_linter(linter) for linter in linters]
 
@@ -21,10 +21,10 @@ def main():
         comments.update(linter_comments)
 
     if comments:
-        token = os.environ['GITHUB_TOKEN']
+        token = os.environ["GITHUB_TOKEN"]
         gh = Github(token)
-        repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
-        prs = repo.get_pulls(head=os.environ['GITHUB_ACTION_REF'])
+        repo = gh.get_repo(os.environ["GITHUB_REPOSITORY"])
+        prs = repo.get_pulls(head=os.environ["GITHUB_ACTION_REF"])
         if prs.totalCount:
             pr = prs[0]
             commit = list(pr.get_commits())[-1]
@@ -33,13 +33,19 @@ def main():
                     comment_body = comment.pop("comment")
                     create_review_comment_args = comment
                     try:
-                        pr.create_review_comment(comment_body, commit, file, **create_review_comment_args)
+                        pr.create_review_comment(
+                            comment_body, commit, file, **create_review_comment_args
+                        )
                     except Exception as e:
-                        print(f"Error in create comment at {file}:{create_review_comment_args}")
+                        print(
+                            f"Error in create comment at {file}:{create_review_comment_args}"
+                        )
                         print(e)
                         print(create_review_comment_args)
     exit(returncode)
 
 
 if __name__ == "__main__":
+    # snap install shfmt
+    # apt install shellcheck
     main()
