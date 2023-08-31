@@ -7,7 +7,6 @@ from parsers.parser import LinterParser
 class ShellCheckParser(LinterParser):
     cmd = "shellcheck"
     default_parameters = "-e SC2148 -f json"
-    install_cmd = "snap install shfmt && apt install shellcheck"
 
     @classmethod
     def parse(cls, output_dict):

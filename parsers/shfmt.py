@@ -7,7 +7,6 @@ from parsers.parser import LinterParser
 class ShfmtParser(LinterParser):
     cmd = "shfmt"
     default_parameters = "-d ."
-    install_cmd = "snap install shfmt"
 
     @classmethod
     def parse(cls, output_dict):
