@@ -20,10 +20,8 @@ def main():
         linter_returncode, linter_comments = linter.run()
         returncode = returncode or linter_returncode
         for file, file_comments in linter_comments.items():
-            comments[file].append(file_comments)
-        print(returncode, comments)
+            comments[file].extend(file_comments)
 
-    print(returncode, comments)
     if comments:
         token = os.environ["GITHUB_TOKEN"]
         gh = Github(token)
@@ -32,8 +30,8 @@ def main():
         if prs.totalCount:
             pr = prs[0]
             commit = list(pr.get_commits())[-1]
-            for file, comments in comments.items():
-                for comment in comments:
+            for file, file_comments in comments.items():
+                for comment in file_comments:
                     comment_body = comment.pop("comment")
                     create_review_comment_args = comment
                     try:
