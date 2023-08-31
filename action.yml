@@ -23,7 +23,7 @@ runs:
       shell: bash
 
     - name: Running linters
-      run: python $GITHUB_ACTION_PATH/linters.py
+      run: python $GITHUB_ACTION_PATH/main.py
       shell: bash
       env:
         INPUT_LINTERS: ${{ inputs.linters }}
