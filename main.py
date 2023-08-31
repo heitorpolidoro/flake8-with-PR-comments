@@ -34,9 +34,10 @@ def main():
                     create_review_comment_args = comment
                     try:
                         pr.create_review_comment(comment_body, commit, file, **create_review_comment_args)
-                    except GithubException:
+                    except Exception as e:
                         print(f"Error in create comment at {file}:{create_review_comment_args}")
-                        raise
+                        print(e)
+                        print(create_review_comment_args)
     exit(returncode)
 
 
