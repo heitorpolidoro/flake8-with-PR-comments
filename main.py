@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 from github import Github
 
@@ -13,12 +14,13 @@ def get_linters():
 
 def main():
     linters = get_linters()
-    comments = {}
+    comments = defaultdict(list)
     returncode = 0
     for linter in linters:
         linter_returncode, linter_comments = linter.run()
         returncode = returncode or linter_returncode
-        comments.update(linter_comments)
+        for file, file_comments in linter_comments.items():
+            comments[file].append(file_comments)
         print(returncode, comments)
 
     print(returncode, comments)
