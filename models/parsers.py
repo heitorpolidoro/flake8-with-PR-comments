@@ -121,7 +121,11 @@ class ShellCheckParser(LinterParser):
             output_status, output_json = subprocess.getstatusoutput(f"{cmd} {file}")
             logging.debug(f"{output_status = } {output_json = }")
             status = status or output_status
-            return_json[file] = json.loads(output_json)
+            try:
+                return_json[file] = json.loads(output_json)
+            except json.decoder.JSONDecodeError:
+                print(output_json)
+                raise
 
         return status, return_json
 
