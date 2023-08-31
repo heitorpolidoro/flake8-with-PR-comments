@@ -7,6 +7,7 @@ from github_actions_utils.log_utils import github_group
 class LinterParser:
     cmd = ""
     default_parameters = ""
+    install_cmd = ""
 
     @staticmethod
     def get_linter(linter):
@@ -18,6 +19,10 @@ class LinterParser:
     @classmethod
     @github_group("Running $(cls.cmd)...")
     def run(cls):
+        if cls.install_cmd:
+            returncode, outs = subprocess.getstatusoutput(cls.install_cmd)
+            if returncode != 0:
+                raise ValueError(f"Installation failed: {outs}")
         parameters = os.getenv(f"INPUT_{cls.cmd.upper()}_PARAMETERS", "")
         cmd = f"{cls.cmd} {parameters} {cls.default_parameters}"
         print(cmd)
