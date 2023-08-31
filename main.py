@@ -19,7 +19,9 @@ def main():
         linter_returncode, linter_comments = linter.run()
         returncode = returncode or linter_returncode
         comments.update(linter_comments)
+        print(returncode, comments)
 
+    print(returncode, comments)
     if comments:
         token = os.environ["GITHUB_TOKEN"]
         gh = Github(token)
