@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from github_actions_utils.log_utils import github_group
+from github_actions_utils.log_utils import log_group
 
 
 class LinterParser:
@@ -16,7 +16,7 @@ class LinterParser:
         raise ValueError(f"Unknown linter: {linter}")
 
     @classmethod
-    @github_group("Running $(cls.cmd)...")
+    @log_group("Running $(cls.cmd)...")
     def run(cls):
         parameters = os.getenv(f"INPUT_{cls.cmd.upper()}_PARAMETERS", "")
         cmd = f"{cls.cmd} {parameters} {cls.default_parameters}"
