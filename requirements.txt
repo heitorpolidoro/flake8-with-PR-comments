@@ -1,5 +1,5 @@
 flake8==6.1.0
-PyGithub<=3.0
+PyGithub==2.1.1
 requests==2.31.0
-github-actions-utils<=1.0
+github-actions-utils==0.4.2
 shfmt-py==3.7.0.1
